@@ -1,0 +1,29 @@
+name: Update Subscription
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # هر 15 دقیقه
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Fetch from worker
+        run: |
+          curl -s https://onx.thextm.workers.dev > sub.txt
+
+      - name: Commit & Push
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          if [[ `git status --porcelain` ]]; then
+            git add sub.txt
+            git commit -m "Auto update sub"
+            git push
+          else
+            echo "No changes"
+          fi
